@@ -48,6 +48,8 @@ def initialize_create_table():
                 key=f"constraints_{index}"
             )
 
+        # todo: have to check if all the constraints are added properly
+
         updated_columns.append({
             "name": field_name.strip(),
             "type": field_type,
