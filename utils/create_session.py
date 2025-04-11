@@ -1,17 +1,11 @@
 import streamlit as st
 from snowflake.snowpark import Session
-import os
-
-# @st.cache_resource
-# def create_session():
-#     return Session.builder.configs(st.secrets.snowflake).create()
-
 
 @st.cache_resource
-def create_session():
+def create_session(snowflake_user, snowflake_password, snowflake_account):
     connection_parameters = {
-        "user": os.getenv("SNOWFLAKE_USER"),
-        "password": os.getenv("SNOWFLAKE_PASSWORD"),
-        "account": os.getenv("SNOWFLAKE_ACCOUNT")
+        "user": snowflake_user,
+        "password": snowflake_password,
+        "account": snowflake_account
     }
     return Session.builder.configs(connection_parameters).create()
