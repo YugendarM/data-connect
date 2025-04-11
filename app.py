@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.create_session import create_session
+from utils.databases import initialize_databases
 
 def initialize_session_state():
     defaults = {
@@ -17,6 +18,10 @@ def clear_session():
     st.rerun()
 
 def initial_layout():
+    snowflake_user = ""
+    snowflake_password = ""
+    snowflake_account = ""
+
     st.title("Welcome to Data-Connect")
 
     if not st.session_state.is_session_connected:
@@ -72,7 +77,9 @@ def initial_layout():
 
     else:
         st.success("✅ You are connected to Snowflake.")
-        st.write(st.session_state.session)
+        # st.write(st.session_state.session)
+
+        initialize_databases(snowflake_user, snowflake_password, snowflake_account)
 
         if st.button("Logout"):
             clear_session()
@@ -82,5 +89,5 @@ def main():
     initial_layout()
 
 if __name__ == "__main__":
-    st.set_page_config(page_title="Data-Connect", layout="wide")
+    st.set_page_config(page_title="Data-Connect")
     main()

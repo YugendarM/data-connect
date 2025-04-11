@@ -13,10 +13,16 @@ def initialize_session_state():
         st.session_state.selected_schema = None
     if "selected_table" not in st.session_state:
         st.session_state.selected_table = None
-
-def initial_layout():
     if "session" not in st.session_state:
-        st.session_state.session = create_session()
+        st.session_state.session = None
+
+def initial_layout(snowflake_user, snowflake_password, snowflake_account):
+    if "session" not in st.session_state:
+        st.balloons()
+        st.session_state.session = create_session(snowflake_user, snowflake_password, snowflake_account)
+
+    if "session" in st.session_state:
+        st.session_state.is_session_connected = True
     #breadcrumbs
     st.write(f"`Database` > `{st.session_state.selected_db and st.session_state.selected_db}` > `{st.session_state.selected_schema and st.session_state.selected_schema}` > `{st.session_state.selected_table and st.session_state.selected_table}`")
 
@@ -39,9 +45,9 @@ def fetch_database_details():
     except Exception as e:
         st.error(f"Error fetching Databases: {e}")
 
-def main():
+def initialize_databases(snowflake_user, snowflake_password, snowflake_account):
     initialize_session_state()
-    initial_layout()
+    initial_layout(snowflake_user, snowflake_password, snowflake_account)
     query_params = st.query_params
     st.session_state.selected_db = query_params.get("db")
 
@@ -49,11 +55,11 @@ def main():
         show_database_page()
     else:
         fetch_database_details()
-    st.write(st.session_state.session)
+    # st.write(st.session_state.session)
 
-if __name__ == "__main__":
-    st.set_page_config(page_title = "Database", layout = "wide")
-    main()
+# if __name__ == "__main__":
+#     st.set_page_config(page_title = "Database", layout = "wide")
+#     main()
 
 
 
