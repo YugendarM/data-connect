@@ -79,7 +79,7 @@ def initial_layout():
         st.success("✅ You are connected to Snowflake.")
         # st.write(st.session_state.session)
 
-        initialize_databases(snowflake_user, snowflake_password, snowflake_account)
+        initialize_databases()
 
         if st.button("Logout"):
             clear_session()

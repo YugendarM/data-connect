@@ -2,6 +2,7 @@ import streamlit as st
 
 from utils.schema_view import show_schema_page
 from utils.create_schema import initialize_create_schema
+from utils.update_query_param import update_query_params
 
 def fetch_schema_details():
     st.title(f"📁 Database: `{st.session_state.selected_db}`")
@@ -16,7 +17,9 @@ def fetch_schema_details():
         st.session_state.schema_names = [row.as_dict()["name"] for row in results]
         st.markdown(f"## 📂 Available Schemas in : `{st.session_state.selected_db}`")
         for name in st.session_state.schema_names:
-            st.markdown(f'<a href="?db={st.session_state.selected_db}&schema={name}" target="_self">{name}</a>', unsafe_allow_html=True)
+            if st.button(f"{name}"):
+                update_query_params(schema=name)
+                st.rerun()
     except Exception as e:
         st.error(f"Error fetching Schemas: {e}")
 
