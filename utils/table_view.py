@@ -2,6 +2,14 @@ import streamlit as st
 from utils.upload_file_data import upload_data_to_table
 from utils.edit_table import edit_table_structure
 
+
+def clean_value(value):
+    """Cleans the value to replace None, NULL, or empty string with an empty space."""
+    if value is None or value == "NULL" or value == "":
+        return ""
+    return value
+
+
 def fetch_table_description():
     table_description = st.session_state.session.sql(
         f"DESC TABLE {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table};"
@@ -38,60 +46,121 @@ def fetch_table_description():
     with st.expander("📋 Table Description"):
         st.dataframe(simplified_description, use_container_width=True)
 
+        # Buttons for edit & add
+    if st.button("🛠️ Edit Table Structure", type="secondary"):
+        edit_table_structure(table_description)
+
     st.markdown("---")
+    return [[row["name"] for row in table_description], simplified_description]
 
 
-    return [[row["name"] for row in table_description], simplified_description]  # Return column names
+@st.dialog("Add new record:")
+def add_record(column_names):
+    new_record = {}
+    for col in column_names:
+        new_record[col] = st.text_input(col, key=f"add_{col}")
+
+    if st.button("Submit Record"):
+        try:
+            # Ensure empty fields are handled as empty string (not NULL)
+            cols = ", ".join(f'"{col}"' for col in new_record)
+            vals = ", ".join(f"'{new_record[col] if new_record[col] != '' else ''}'" for col in new_record.values())
+            insert_query = f"""
+                INSERT INTO {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
+                ({cols}) VALUES ({vals});
+            """
+            st.session_state.session.sql(insert_query).collect()
+            st.success("Record added successfully.")
+            st.rerun()
+        except Exception as e:
+            st.error(f"Error inserting record: {e}")
 
 
 def fetch_table_contents():
     try:
-        [column_names, table_description] = fetch_table_description()
+        column_names, table_description = fetch_table_description()
 
-        if st.button("Edit Table", type = "primary"):
-            edit_table_structure(table_description)
 
-        if st.button("Add Record +", type="secondary"):
-            print()  
 
         upload_data_to_table()
+
+        _, col1 = st.columns([8, 2])
+        with col1:
+            if st.button("➕ Add Record", type='primary'):
+                add_record(column_names)
 
         st.markdown("---")
 
         st.markdown("### 🔍 Search & Filter")
-        
+
         _, search_col, limit_col = st.columns([3, 4, 3])
-
         with search_col:
-            search_query = st.text_input(label="Search all columns..", placeholder="Type to Search")
-
+            search_query = st.text_input("Search all columns..", placeholder="Type to Search")
         with limit_col:
-            result_limit = st.number_input(
-                label="Number of rows to fetch", min_value=1, value=30, step=1
-            )
+            result_limit = st.number_input("Number of rows to fetch", min_value=1, value=30, step=1)
 
-        _, search_col = st.columns([7, 1])
-        with search_col:
+        _, search_btn_col = st.columns([15, 2])
+        with search_btn_col:
             search_triggered = st.button("Search", type="primary")
-
+        
+        # Search logic
         where_clause = ""
         if search_triggered and search_query.strip():
             like_statements = [f'"{col}" ILIKE \'%{search_query.strip()}%\'' for col in column_names]
             where_clause = f"WHERE {' OR '.join(like_statements)}"
 
         query = f"""
-            SELECT * 
-            FROM {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
+            SELECT * FROM {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
             {where_clause}
             LIMIT {result_limit};
         """
 
-        results = st.session_state.session.sql(query).collect()
+        raw_results = st.session_state.session.sql(query).collect()
 
-        if not results:
+        if not raw_results:
             st.warning("No records found.")
-        else:
-            st.dataframe(results, use_container_width=True)
+            return
+
+        original_data = [
+            {k: clean_value(v) for k, v in row.asDict().items()}
+            for row in raw_results
+        ]
+
+        st.markdown("### 📄 Table Overview")
+
+        edited_data = st.data_editor(
+            original_data,
+            use_container_width=True,
+            num_rows="dynamic",
+            key="editable_table"
+        )
+
+        # Detect changes
+        changes = []
+        for old_row, new_row in zip(original_data, edited_data):
+            if old_row != new_row:
+                changes.append((old_row, new_row))
+
+        if changes and st.button("💾 Save Changes", type="primary"):
+            for old_row, new_row in changes:
+                # Constructing the SET clause by ensuring empty strings for empty fields
+                set_clause = ", ".join(
+                    [f'"{col}" = \'{new_row[col] if new_row[col] != "" else ""}\'' for col in column_names]
+                )
+                # Using ID only in the WHERE clause to match the record
+                where_clause = f'"ID" = \'{old_row["ID"]}\''
+
+                update_query = f"""
+                    UPDATE {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
+                    SET {set_clause}
+                    WHERE {where_clause};
+                """
+                try:
+                    st.session_state.session.sql(update_query).collect()
+                except Exception as e:
+                    st.error(f"Error updating row: {e}")
+            st.success("Changes saved successfully.")
+            st.rerun()
 
     except Exception as e:
         st.error(f"Error fetching Table contents: {e}")
