@@ -5,11 +5,37 @@ from utils.databases import initialize_databases
 def initialize_session_state():
     defaults = {
         "session": None,
-        "is_session_connected": False
+        "is_session_connected": False,
+        "current_role" : None
     }
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+def fetch_user_role():
+    _, col1, col2, col3 = st.columns([5, 3, 5, 3])
+
+    with col1:
+        st.markdown("##### Current Role:")
+
+    with col2:
+        current_role_result = st.session_state.session.sql("SELECT CURRENT_ROLE()").collect()
+        st.session_state.current_role = current_role_result[0][0]
+        roles_result = st.session_state.session.sql("SHOW ROLES").collect()
+        available_roles = [row['name'] for row in roles_result]
+        new_role = st.selectbox("", available_roles, index=available_roles.index(st.session_state.current_role) if st.session_state.current_role in available_roles else 0, label_visibility="collapsed")
+
+
+    with col3:    
+        if st.button("`Change Role`"):
+            try:
+                st.session_state.session.sql(f"USE ROLE {new_role}").collect()
+                st.toast(f"Role changed to `{new_role}` successfully.")
+                st.rerun() 
+            except Exception as e:
+                st.error(f"Error switching role: {str(e)}")
+    
+
 
 def clear_session():
     st.session_state.is_session_connected = False
@@ -77,11 +103,13 @@ def initial_layout():
 
     else:
         st.success("✅ You are connected to Snowflake.")
-        # st.write(st.session_state.session)
+        fetch_user_role()
 
         initialize_databases()
 
-        if st.button("Logout"):
+        st.markdown("---")
+
+        if st.button("Logout Session"):
             clear_session()
 
 def main():

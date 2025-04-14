@@ -24,8 +24,10 @@ def initial_layout():
 
     if "session" in st.session_state:
         st.session_state.is_session_connected = True
-    #breadcrumbs
-    st.write(f"`Database` > `{st.session_state.selected_db and st.session_state.selected_db}` > `{st.session_state.selected_schema and st.session_state.selected_schema}` > `{st.session_state.selected_table and st.session_state.selected_table}`")
+        
+    # #breadcrumbs
+    # st.write(f"`Database` > `{st.session_state.selected_db and st.session_state.selected_db}` > `{st.session_state.selected_schema and st.session_state.selected_schema}` > `{st.session_state.selected_table and st.session_state.selected_table}`")
+    
 
     
 
@@ -33,7 +35,7 @@ def fetch_database_details():
 
     st.title("Database")
     st.subheader("Explore your databases here")
-    _, right_col = st.columns([8, 2])
+    _, right_col = st.columns([7, 2])
     with right_col:
         if st.button("Create Database +", type='primary'):
             initialize_create_database()
