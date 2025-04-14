@@ -39,7 +39,7 @@ def fetch_user_role():
 
 def clear_session():
     st.session_state.is_session_connected = False
-    
+    st.query_params.clear()
     st.session_state.pop("session", None)
     st.rerun()
 
