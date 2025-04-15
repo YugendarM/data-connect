@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+
 from utils.upload_file_data import upload_data_to_table
 from utils.edit_table import edit_table_structure
 
@@ -139,11 +141,26 @@ def fetch_table_contents():
             key="editable_table"
         )
 
+        # def convert_for_download(df):
+        #     return df.to_csv().encode("utf-8")
+
         # Detect changes
         changes = []
         for old_row, new_row in zip(original_data, edited_data):
             if old_row != new_row:
                 changes.append((old_row, new_row))
+
+        df = pd.DataFrame(edited_data)
+
+        csv = df.to_csv().encode("utf-8")
+
+        st.download_button(
+            label="Download CSV",
+            data=csv,
+            file_name="data.csv",
+            mime="text/csv",
+            icon=":material/download:",
+        )
 
         if changes and st.button("💾 Save Changes", type="primary"):
             for old_row, new_row in changes:
