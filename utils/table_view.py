@@ -62,11 +62,8 @@ def add_record(column_names):
 
     if st.button("Submit Record"):
         try:
-            # Ensure empty fields are handled as empty string (not NULL)
             cols = ", ".join(f'"{col}"' for col in new_record)
-            # vals = ", ".join(f'"{new_record[col] if new_record[col] != '' else ''}"' for col in new_record.values())
-            st.balloons()
-            st.write(vals)
+            vals = ", ".join(f"'{new_record[col] if new_record[col] else ''}'" for col in new_record)
 
             insert_query = f"""
                 INSERT INTO {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
@@ -90,10 +87,10 @@ def fetch_table_contents():
 
         upload_data_to_table()
 
-        # _, col1 = st.columns([8, 2])
-        # with col1:
-        #     if st.button("➕ Add Record", type='primary'):
-        #         add_record(column_names)
+        _, col1 = st.columns([8, 2])
+        with col1:
+            if st.button("➕ Add Record", type='primary'):
+                add_record(column_names)
 
         st.markdown("---")
 
