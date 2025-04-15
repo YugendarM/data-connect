@@ -17,7 +17,7 @@ def upload_data_to_table():
         st.warning("Please select a database, schema, and table first.")
         return
 
-    uploaded_file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"], key="file_uploader")
+    uploaded_file = st.file_uploader("Upload CSV or Excel file", type=["csv"], key="file_uploader")
 
     if uploaded_file and (
         "uploaded_filename" not in st.session_state or
@@ -138,7 +138,7 @@ def upload_data_to_table():
                         # res = session.sql(
                         #     f"SELECT COUNT(*) FROM {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}"
                         # ).collect()
-                        st.write(f"📊 Total rows in table now: {res[0][0]}")
+                        # st.write(f"📊 Total rows in table now: {res[0][0]}")
                         st.rerun()
 
                     except Exception as e:

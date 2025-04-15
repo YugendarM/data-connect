@@ -2,7 +2,6 @@ import streamlit as st
 from utils.upload_file_data import upload_data_to_table
 from utils.edit_table import edit_table_structure
 
-
 def clean_value(value):
     """Cleans the value to replace None, NULL, or empty string with an empty space."""
     if value is None or value == "NULL" or value == "":
@@ -47,8 +46,7 @@ def fetch_table_description():
         st.dataframe(simplified_description, use_container_width=True)
 
         # Buttons for edit & add
-    if st.button("🛠️ Edit Table Structure", type="secondary"):
-        edit_table_structure(table_description)
+    
 
     st.markdown("---")
     return [[row["name"] for row in table_description], simplified_description]
@@ -64,11 +62,15 @@ def add_record(column_names):
         try:
             # Ensure empty fields are handled as empty string (not NULL)
             cols = ", ".join(f'"{col}"' for col in new_record)
-            vals = ", ".join(f"'{new_record[col] if new_record[col] != '' else ''}'" for col in new_record.values())
+            # vals = ", ".join(f'"{new_record[col] if new_record[col] != '' else ''}"' for col in new_record.values())
+            st.balloons()
+            st.write(vals)
+
             insert_query = f"""
                 INSERT INTO {st.session_state.selected_db}.{st.session_state.selected_schema}.{st.session_state.selected_table}
                 ({cols}) VALUES ({vals});
             """
+            st.write(insert_query)
             st.session_state.session.sql(insert_query).collect()
             st.success("Record added successfully.")
             st.rerun()
@@ -80,14 +82,16 @@ def fetch_table_contents():
     try:
         column_names, table_description = fetch_table_description()
 
+        if st.button("🛠️ Edit Table Structure", type="secondary"):
+            edit_table_structure(table_description)
 
 
         upload_data_to_table()
 
-        _, col1 = st.columns([8, 2])
-        with col1:
-            if st.button("➕ Add Record", type='primary'):
-                add_record(column_names)
+        # _, col1 = st.columns([8, 2])
+        # with col1:
+        #     if st.button("➕ Add Record", type='primary'):
+        #         add_record(column_names)
 
         st.markdown("---")
 
