@@ -3,6 +3,7 @@ import streamlit as st
 from utils.schema_view import show_schema_page
 from utils.create_schema import initialize_create_schema
 from utils.update_query_param import update_query_params
+from utils.format_date import format_date
 
 def fetch_schema_details():
     st.title(f"📁 Database: `{st.session_state.selected_db}`")
@@ -14,12 +15,33 @@ def fetch_schema_details():
     
     try:
         results = st.session_state.session.sql(f"SHOW SCHEMAS IN DATABASE {st.session_state.selected_db}").collect()
-        st.session_state.schema_names = [row.as_dict()["name"] for row in results]
+        st.session_state.schemas = results
         st.markdown(f"## 📂 Available Schemas in : `{st.session_state.selected_db}`")
-        for name in st.session_state.schema_names:
-            if st.button(f"{name}"):
-                update_query_params(schema=name)
-                st.rerun()
+        # for row in st.session_state.schemas:
+        #     if st.button(f"{row.name}"):
+        #         update_query_params(schema=row.name)
+        #         st.rerun()
+
+        col1, col2, col3 = st.columns([4, 3, 2])
+        with col1:
+            st.caption("##### ***NAME***")
+        with col2:
+            st.caption("##### ***OWNER***")
+        with col3:
+            st.caption("##### ***CREATED ON***")
+
+        index = 0
+        for row in st.session_state.schemas:
+            index = index + 1
+            with col1:
+                if st.button(f"**{row.name}**", type = "tertiary", key = f"db_{row.name}"):
+                    update_query_params(schema=row.name)
+                    st.rerun()
+            with col2:
+                st.button(f"{row.owner}", type = "tertiary", key = f"owner_{index}",  disabled = True)
+                # st.markdown(f"{row.owner}")
+            with col3:
+                st.button(f"{format_date(row.created_on)}", type = "tertiary",  key = f"created_{index}", disabled = True)
     except Exception as e:
         st.error(f"Error fetching Schemas: {e}")
 
