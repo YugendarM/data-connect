@@ -39,9 +39,9 @@ def fetch_database_details():
 
     st.title("Database")
     st.subheader("Explore your databases here")
-    _, right_col = st.columns([7, 2])
+    _, right_col = st.columns([9, 3])
     with right_col:
-        if st.button("Create Database +", type='primary'):
+        if st.button("Create Database", type='primary', icon=":material/add:"):
             initialize_create_database()
     try:
         results = st.session_state.session.sql("SHOW DATABASES;").collect()

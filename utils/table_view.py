@@ -81,7 +81,7 @@ def fetch_table_contents():
     try:
         column_names, table_description = fetch_table_description()
 
-        if st.button("🛠️ Edit Table Structure", type="secondary"):
+        if st.button("Edit Table  Structure", type="secondary", icon=":material/edit:"):
             edit_table_structure(table_description)
 
 
@@ -89,7 +89,7 @@ def fetch_table_contents():
 
         _, col1 = st.columns([8, 2])
         with col1:
-            if st.button("➕ Add Record", type='primary'):
+            if st.button("Add Record", type='primary', icon=":material/add:"):
                 add_record(column_names)
 
         st.markdown("---")

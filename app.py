@@ -109,7 +109,7 @@ def initial_layout():
 
         st.markdown("---")
 
-        if st.button("Logout Session"):
+        if st.button("Logout Session", icon=":material/logout:"):
             clear_session()
 
 def main():

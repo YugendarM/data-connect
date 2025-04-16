@@ -9,9 +9,9 @@ def fetch_table_details():
     if st.session_state.selected_schema is not None:
         st.title(f"📁 Schema: `{st.session_state.selected_schema}`")
         st.write(f"Welcome to `{st.session_state.selected_schema}` dashboard.")
-    _, right_col = st.columns([8, 2])
+    _, right_col = st.columns([9, 3])
     with right_col:
-        if st.button("Create Table +", type='primary'):
+        if st.button("Create Table", type='primary', icon=":material/add:"):
             initialize_create_table()
     try:
         results = st.session_state.session.sql(f"SHOW TABLES IN SCHEMA {st.session_state.selected_db}.{st.session_state.selected_schema}").collect()

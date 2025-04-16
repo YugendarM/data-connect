@@ -14,7 +14,7 @@ def initialize_create_table():
 
     _, right_col = st.columns([4, 2])
     with right_col:
-        if st.button("Add Column +"):
+        if st.button("Add Column", icon=":material/add:"):
             st.session_state.columns.append({
                 "name": "",
                 "type": "VARCHAR(25)",
@@ -58,7 +58,7 @@ def initialize_create_table():
 
     st.session_state.columns = updated_columns
     
-    if st.button("Create Table"):
+    if st.button("Create Table", icon=":material/add:"):
         if not st.session_state.new_table_name.strip():
             st.error("Table name is required!")
         elif len(st.session_state.columns) == 0:

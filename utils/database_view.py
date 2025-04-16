@@ -8,9 +8,9 @@ from utils.format_date import format_date
 def fetch_schema_details():
     st.title(f"📁 Database: `{st.session_state.selected_db}`")
     st.write(f"Welcome to `{st.session_state.selected_db}` dashboard.")
-    _, right_col = st.columns([7 , 2])
+    _, right_col = st.columns([9, 3])
     with right_col:
-        if st.button("Create Schema +", type='primary'):
+        if st.button("Create Schema", type='primary', icon=":material/add:"):
             initialize_create_schema()
     
     try:
@@ -58,7 +58,7 @@ def show_database_page():
     st.write("")  # Blank line
     st.empty()    # Placeholder
     st.text("")   # Also creates a little gap
-    if st.button("⬅ Back to database list"):
+    if st.button("Back to database list", icon=":material/arrow_back:"):
         st.query_params.clear()
         st.rerun()
 
