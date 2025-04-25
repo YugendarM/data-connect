@@ -22,7 +22,7 @@ def fetch_table_details():
             st.write("No tables found on this schemaa")
 
         else:
-            col1, col2, col3 = st.columns([4, 3, 2])
+            col1, col2, col3 = st.columns([4, 3, 3])
             with col1:
                 st.caption("##### ***NAME***")
             with col2:

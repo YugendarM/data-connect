@@ -22,7 +22,7 @@ def fetch_schema_details():
         #         update_query_params(schema=row.name)
         #         st.rerun()
 
-        col1, col2, col3 = st.columns([4, 3, 2])
+        col1, col2, col3 = st.columns([4, 3, 3])
         with col1:
             st.caption("##### ***NAME***")
         with col2:
